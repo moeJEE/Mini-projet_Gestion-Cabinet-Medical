@@ -60,6 +60,29 @@ public class ConsultationController {
     }
     
     /**
+     * Récupère toutes les consultations à venir pour un médecin, formatées pour JTable.
+     * 
+     * @param medecinId ID du médecin
+     * @return Tableau 2D [ID, Date/Heure, Patient, Catégorie, Prix, Statut]
+     */
+    public Object[][] getConsultationsFuturesForTable(int medecinId) {
+        List<Consultation> consultations = consultationService.getConsultationsFuturesByMedecin(medecinId);
+        Object[][] data = new Object[consultations.size()][6];
+        
+        for (int i = 0; i < consultations.size(); i++) {
+            Consultation c = consultations.get(i);
+            data[i][0] = c.getId();
+            data[i][1] = DateHelper.formatDateTime(c.getDate()); // Date complète au lieu de juste l'heure
+            data[i][2] = c.getPatient() != null ? c.getPatient().getNom() : "Patient #" + c.getPatientId();
+            data[i][3] = c.getCategorie() != null ? c.getCategorie().getDesignation() : "";
+            data[i][4] = String.format("%.2f DH", c.getPrixConsultation());
+            data[i][5] = c.isEstPayee() ? "Payée" : "Non payée";
+        }
+        
+        return data;
+    }
+    
+    /**
      * Retourne les colonnes pour la table des consultations du jour.
      * 
      * @return Tableau des noms de colonnes

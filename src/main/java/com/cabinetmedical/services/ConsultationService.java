@@ -134,6 +134,19 @@ public class ConsultationService {
     }
     
     /**
+     * Récupère toutes les consultations futures et d'aujourd'hui pour un médecin.
+     * 
+     * @param medecinId ID du médecin
+     * @return Liste des consultations à venir
+     */
+    public List<Consultation> getConsultationsFuturesByMedecin(int medecinId) {
+        return consultationDAO.findByMedecinId(medecinId).stream()
+            .filter(c -> !c.getDate().toLocalDate().isBefore(LocalDate.now()))
+            .sorted((c1, c2) -> c1.getDate().compareTo(c2.getDate()))
+            .toList();
+    }
+    
+    /**
      * Récupère les consultations d'un patient.
      * 
      * @param patientId ID du patient

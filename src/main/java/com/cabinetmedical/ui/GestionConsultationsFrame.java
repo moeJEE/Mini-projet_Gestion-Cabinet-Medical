@@ -166,11 +166,13 @@ public class GestionConsultationsFrame extends javax.swing.JFrame {
     }
     
     private void refreshTable() {
+        // Afficher uniquement les consultations du jour
         Object[][] data = consultationController.getConsultationsJourForTable(medecinId, LocalDate.now());
         tableModel.setRowCount(0);
         for (Object[] row : data) {
             tableModel.addRow(row);
         }
+        System.out.println("[GestionConsultationsFrame] Table rafraichie: " + data.length + " consultations du jour affichees");
     }
     
     private String getSelectedDate() {
