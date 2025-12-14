@@ -208,22 +208,43 @@ public class ConsultationController {
     public String createConsultation(int patientId, int categorieId, LocalDateTime date,
                                      String description, double prix, int medecinId) {
         try {
+            System.out.println("[ConsultationController] === VALIDATIONS ===");
+            
             // Validations
             if (date == null) {
+                System.err.println("[ConsultationController] ERREUR: Date est null");
                 return "La date est requise";
             }
-            if (date.isBefore(LocalDateTime.now())) {
+            System.out.println("[ConsultationController] Date OK: " + date);
+            
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("[ConsultationController] Comparaison: date=" + date + " VS now=" + now);
+            
+            // ⚠️ Permettre les consultations d'aujourd'hui (même si l'heure est passée)
+            // Comparer uniquement les dates, pas les heures
+            if (date.toLocalDate().isBefore(now.toLocalDate())) {
+                System.err.println("[ConsultationController] ERREUR: Date dans le passe");
                 return "La date ne peut pas être dans le passé";
             }
+            System.out.println("[ConsultationController] Date validation OK");
+            
             if (prix <= 0) {
+                System.err.println("[ConsultationController] ERREUR: Prix <= 0");
                 return "Le prix doit être supérieur à 0";
             }
+            System.out.println("[ConsultationController] Prix OK: " + prix);
+            
             if (patientId <= 0) {
+                System.err.println("[ConsultationController] ERREUR: PatientId <= 0");
                 return "Veuillez sélectionner un patient";
             }
+            System.out.println("[ConsultationController] Patient ID OK: " + patientId);
+            
             if (categorieId <= 0) {
+                System.err.println("[ConsultationController] ERREUR: CategorieId <= 0");
                 return "Veuillez sélectionner une catégorie";
             }
+            System.out.println("[ConsultationController] Categorie ID OK: " + categorieId);
             
             Consultation consultation = new Consultation();
             consultation.setDate(date);
@@ -234,12 +255,19 @@ public class ConsultationController {
             consultation.setMedecinId(medecinId);
             consultation.setEstPayee(false);
             
+            System.out.println("[ConsultationController] Appel consultationService.createConsultation...");
             consultationService.createConsultation(consultation);
+            System.out.println("[ConsultationController] SUCCESS!");
+            
             return "Consultation créée avec succès";
             
         } catch (ValidationException | BusinessException | NotFoundException e) {
+            System.err.println("[ConsultationController] Exception metier: " + e.getMessage());
+            e.printStackTrace();
             return e.getMessage();
         } catch (Exception e) {
+            System.err.println("[ConsultationController] Exception generale: " + e.getMessage());
+            e.printStackTrace();
             return "Erreur: " + e.getMessage();
         }
     }
@@ -259,13 +287,25 @@ public class ConsultationController {
     public String createConsultation(int patientId, int categorieId, String dateStr,
                                      String heureStr, String description, String prixStr, int medecinId) {
         try {
+            System.out.println("[ConsultationController] Parsing date: " + dateStr + " " + heureStr);
             LocalDateTime date = DateHelper.parseDateTime(dateStr, heureStr);
+            System.out.println("[ConsultationController] Date parsee: " + date);
+            System.out.println("[ConsultationController] Date actuelle: " + java.time.LocalDateTime.now());
+            
             double prix = Double.parseDouble(prixStr);
+            System.out.println("[ConsultationController] Prix parse: " + prix);
+            
             return createConsultation(patientId, categorieId, date, description, prix, medecinId);
         } catch (NumberFormatException e) {
+            System.err.println("[ConsultationController] Erreur parsing prix: " + e.getMessage());
             return "Prix invalide";
         } catch (ValidationException e) {
+            System.err.println("[ConsultationController] Erreur validation: " + e.getMessage());
             return e.getMessage();
+        } catch (Exception e) {
+            System.err.println("[ConsultationController] Erreur inattendue: " + e.getMessage());
+            e.printStackTrace();
+            return "Erreur: " + e.getMessage();
         }
     }
     

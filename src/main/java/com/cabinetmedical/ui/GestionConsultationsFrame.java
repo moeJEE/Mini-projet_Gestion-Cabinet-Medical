@@ -432,25 +432,48 @@ public class GestionConsultationsFrame extends javax.swing.JFrame {
 
     private void btnAjouterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjouterActionPerformed
         try {
+            // DEBUG: Afficher les valeurs saisies
+            System.out.println("=== DEBUG CREATION CONSULTATION ===");
+            
             String selectedPatient = (String) comboPatients.getSelectedItem();
+            System.out.println("Patient selectionne: " + selectedPatient);
+            
             if (selectedPatient == null) {
                 javax.swing.JOptionPane.showMessageDialog(this, "Veuillez selectionner un patient", "Erreur", javax.swing.JOptionPane.ERROR_MESSAGE);
                 return;
             }
             int patientId = Integer.parseInt(selectedPatient.split(" - ")[0]);
+            System.out.println("Patient ID: " + patientId);
             
             String selectedCategorie = (String) comboCategories.getSelectedItem();
+            System.out.println("Categorie selectionnee: " + selectedCategorie);
+            
             int categorieId = categorieController.getCategorieIdByName(selectedCategorie);
+            System.out.println("Categorie ID: " + categorieId);
+            
+            String dateStr = getSelectedDate();
+            String heureStr = getSelectedHeure();
+            String prixStr = txtPrix.getText().trim();
+            String description = txtDescription.getText().trim();
+            
+            System.out.println("Date: " + dateStr);
+            System.out.println("Heure: " + heureStr);
+            System.out.println("Prix: " + prixStr);
+            System.out.println("Description: " + description);
+            System.out.println("Medecin ID: " + medecinId);
             
             String result = consultationController.createConsultation(
                 patientId,
                 categorieId,
-                getSelectedDate(),
-                getSelectedHeure(),
-                txtDescription.getText().trim(),
-                txtPrix.getText().trim(),
+                dateStr,
+                heureStr,
+                description,
+                prixStr,
                 medecinId
             );
+            
+            System.out.println("Resultat: " + result);
+            System.out.println("=== FIN DEBUG ===");
             
             // Verifier si le message indique un succes (avec ou sans accent)
             String resultLower = result.toLowerCase();
@@ -461,8 +484,10 @@ public class GestionConsultationsFrame extends javax.swing.JFrame {
             } else {
                 javax.swing.JOptionPane.showMessageDialog(this, result, "Erreur", javax.swing.JOptionPane.ERROR_MESSAGE);
             }
-        } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Prix invalide", "Erreur", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            System.err.println("ERREUR EXCEPTION: " + e.getMessage());
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(this, "Erreur: " + e.getMessage(), "Erreur", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAjouterActionPerformed
 
